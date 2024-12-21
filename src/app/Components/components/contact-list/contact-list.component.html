@@ -1,0 +1,121 @@
+<div class="flex justify-between items-center py-4 px-6"
+     [ngClass]="darkMode ? 'bg-gray-800 border-b-2 border-gray-600' : 'bg-white border-b-2 border-gray-300'">
+  <!-- Header with dynamic color change based on dark mode -->
+  <h2 class="text-2xl font-semibold" [ngClass]="darkMode ? 'text-white' : 'text-black'">
+    PhoneBook
+  </h2>
+
+  <!-- Dark Mode Toggle Switch -->
+  <label class="flex items-center cursor-pointer">
+    <!-- Sun Icon (Light Mode) -->
+    <span *ngIf="!darkMode" class="text-yellow-500 mr-2">
+      <i class="fas fa-sun"></i>
+    </span>
+
+    <!-- Toggle Switch -->
+    <div class="relative">
+      <input
+        type="checkbox"
+        id="darkModeToggle"
+        class="hidden"
+        (change)="toggleTheme()"
+        [checked]="darkMode"
+      />
+      <div class="block w-10 h-6 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+      <div class="dot absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition transform" [ngClass]="{'translate-x-4': darkMode}"></div>
+    </div>
+
+    <!-- Moon Icon (Dark Mode) -->
+    <span *ngIf="darkMode" class="text-blue-400 ml-2">
+      <i class="fas fa-moon"></i>
+    </span>
+  </label>
+</div>
+
+
+
+<div class="p-6 bg-gray-100 min-h-screen dark:bg-gray-800">
+  <!-- Search Bar -->
+  <div class="flex justify-between items-center mb-4">
+    <input
+      type="text"
+      class="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
+      placeholder="Search contacts by name, email, or phone"
+      [(ngModel)]="searchQuery"
+      (input)="onSearch()"
+    />
+
+    <!-- View Mode Toggle -->
+    <div class="flex items-center ml-4">
+      <!-- View Mode Switch -->
+      <label class="flex items-center cursor-pointer">
+        <span *ngIf="viewMode === 'list'" class="text-blue-500 mr-2">List View</span>
+        <div class="relative">
+          <input
+            type="checkbox"
+            id="viewModeToggle"
+            class="hidden"
+            (change)="toggleViewMode()"
+            [checked]="viewMode === 'grid'"
+          />
+          <div class="block w-10 h-6 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+          <div class="dot absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition transform" [ngClass]="{'translate-x-4': viewMode === 'grid'}"></div>
+        </div>
+        <span *ngIf="viewMode === 'grid'" class="text-blue-500 ml-2">Grid View</span>
+      </label>
+    </div>
+
+  </div>
+
+  <!-- Favorite Toggle -->
+  <div class="flex justify-start items-center mb-4">
+    <button
+      class="px-4 py-2 mx-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 flex items-center"
+      (click)="toggleFavoriteFilter()">
+      <i class="fa" [ngClass]="showFavoritesOnly ? 'fa-star' : 'fa-star-o'"></i>
+      <span class="ml-2">{{ showFavoritesOnly ? 'Show All' : 'Show Favorites' }}</span>
+    </button>
+  </div>
+
+
+  <!-- Contact List -->
+  <div [ngClass]="viewMode === 'list' ? 'block' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'">
+    <div
+      *ngFor="let contact of filteredContacts"
+      class="p-4 bg-white shadow rounded-lg flex justify-between items-center dark:bg-gray-700"
+    >
+      <!-- Contact Info -->
+      <div>
+        <h3 class="text-lg font-bold dark:text-white">{{ contact.firstName }} {{ contact.lastName }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-300">{{ contact.email }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">{{ contact.phone }}</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center">
+        <button
+          class="text-yellow-500 hover:text-yellow-600 mx-1"
+          (click)="toggleFavorite(contact)"
+        >
+          <i class="fa" [ngClass]="contact.isFavorite ? 'fa-star' : 'fa-circle'"></i>
+        </button>
+        <button class="text-blue-500 hover:text-blue-600 mx-1" (click)="viewDetails(contact)">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button class="text-red-500 hover:text-red-600 mx-1" (click)="confirmDelete(contact)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div *ngIf="selectedContacts.length > 0" class="fixed bottom-4 right-4">
+    <button
+      class="px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600"
+      (click)="confirmBulkDelete()"
+    >
+      Delete Selected ({{ selectedContacts.length }})
+    </button>
+  </div>
+</div>
