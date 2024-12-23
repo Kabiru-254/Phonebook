@@ -1,4 +1,4 @@
-<div class="flex justify-between items-center py-4 px-6"
+<div class="flex justify-between items-center py-4 px-6 "
      [ngClass]="darkMode ? 'bg-gray-800 border-b-2 border-gray-600' : 'bg-white border-b-2 border-gray-300'">
   <!-- Header with dynamic color change based on dark mode -->
   <h2 class="text-2xl font-semibold" [ngClass]="darkMode ? 'text-white' : 'text-black'">
@@ -34,7 +34,9 @@
 
 
 
-<div class="p-6 bg-gray-100 min-h-screen dark:bg-gray-800">
+<div class="flex justify-center items-center w-full dark:bg-gray-700 ">
+
+<div class="p-6 bg-gray-100 min-h-screen dark:bg-gray-800 w-full m-5 rounded-lg shadow-lg ">
   <!-- Search Bar -->
   <div class="flex justify-between items-center mb-4">
     <input
@@ -67,23 +69,89 @@
 
   </div>
 
-  <!-- Favorite Toggle -->
-  <div class="flex justify-start items-center mb-4">
-    <button
-      class="px-4 py-2 mx-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 flex items-center"
-      (click)="toggleFavoriteFilter()">
-      <i class="fa" [ngClass]="showFavoritesOnly ? 'fa-star' : 'fa-star-o'"></i>
-      <span class="ml-2">{{ showFavoritesOnly ? 'Show All' : 'Show Favorites' }}</span>
-    </button>
+  <div class="flex flex-wrap justify-between items-center mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <!-- Favorite Toggle -->
+    <div class="flex justify-start items-center mb-4">
+      <button
+        class="px-4 py-2 mx-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 flex items-center"
+        (click)="toggleFavoriteFilter()">
+        <i class="fa" [ngClass]="showFavoritesOnly ? 'fa-star' : 'fa-star-o'"></i>
+        <span class="ml-2">{{ showFavoritesOnly ? 'Show All' : 'Show Favorites' }}</span>
+      </button>
+    </div>
+
+    <!-- Group Category Dropdown -->
+    <div class="flex justify-start items-center mb-4">
+      <label for="groupCategory" class="mr-2 text-gray-700 dark:text-white">Filter By Group Category:</label>
+      <select
+        id="groupCategory"
+        [(ngModel)]="selectedGroupCategory"
+        (change)="filterByGroupCategory()"
+        class="px-4 py-2 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-500">
+        <option value="">All</option>
+        <option value="Family">Family</option>
+        <option value="Work">Work</option>
+        <option value="Friends">Friends</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <!-- Recent Contacts Toggle -->
+    <div class="flex justify-start items-center mb-4">
+      <button
+        class="px-4 py-2 mx-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center"
+        (click)="toggleRecentContactsFilter()">
+        <span class="ml-2">{{ showRecentContactsOnly ? 'Show All Contacts' : 'Show Recent Contacts' }}</span>
+      </button>
+    </div>
+
+    <div class="flex justify-start items-center mb-4">
+      <button
+        class="px-4 py-2 mx-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center"
+        (click)="openImportExportPage()">
+        <span class="ml-2">Export/Import Contacts</span>
+      </button>
+    </div>
+
+    <!-- Select Multiple Button -->
+    <div class="flex justify-start items-center mb-4">
+      <button
+        class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600"
+        (click)="toggleCheckboxVisibility()">
+        {{ showCheckboxes ? 'Hide Selection' : 'Select Multiple' }}
+      </button>
+
+      <!-- Select All Button (only visible when checkboxes are shown) -->
+      <button
+        *ngIf="showCheckboxes"
+        class="ml-4 px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600"
+        (click)="selectAllContacts()">
+        Select All
+      </button>
+    </div>
   </div>
+
+
 
 
   <!-- Contact List -->
   <div [ngClass]="viewMode === 'list' ? 'block' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'">
     <div
       *ngFor="let contact of filteredContacts"
-      class="p-4 bg-white shadow rounded-lg flex justify-between items-center dark:bg-gray-700"
+      class="p-4 bg-white shadow-lg rounded-lg flex justify-between items-center dark:bg-gray-700 "
+      [ngStyle]="{
+      'max-width': viewMode === 'list' ? '100%' : '100%',
+      'margin': viewMode === 'list' ? '10px' : '0'
+    }"
     >
+      <input
+        *ngIf="showCheckboxes"
+        type="checkbox"
+        class="mr-4"
+        [(ngModel)]="selectedContactsMap[contact.id]"
+        (change)="toggleContactSelection(contact.id)"
+      />
+
       <!-- Contact Info -->
       <div>
         <h3 class="text-lg font-bold dark:text-white">{{ contact.firstName }} {{ contact.lastName }}</h3>
@@ -118,4 +186,6 @@
       Delete Selected ({{ selectedContacts.length }})
     </button>
   </div>
+</div>
+
 </div>

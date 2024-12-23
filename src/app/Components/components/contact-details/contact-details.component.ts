@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import { ContactsService } from '../../../Services/contacts.service';
 import { NotificationsService } from '../../../Services/notifications.service';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Contact} from '../../../Models/ContactModel';
 import {CommonModule} from '@angular/common';
+import {DarkModeService} from '../../../Services/dark-mode.service';
 
 @Component({
   selector: 'app-contact-details',
@@ -17,6 +18,8 @@ import {CommonModule} from '@angular/common';
   styleUrl: './contact-details.component.css'
 })
 export class ContactDetailsComponent implements OnInit{
+
+  @ViewChild('fileInput', { static: false }) fileInput!: ElementRef;
   contact!: Contact;
   contactId!: string | null;
   contactForm!: FormGroup;
@@ -26,14 +29,15 @@ export class ContactDetailsComponent implements OnInit{
     private route: ActivatedRoute,
     private contactService: ContactsService,
     private notificationService: NotificationsService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router,
+    private darkModeService: DarkModeService
   ) {
   }
   ngOnInit(): void {
 
-    // Retrieve the dark mode preference from local storage
-    const savedDarkMode = localStorage.getItem('darkMode');
-    this.isDarkMode = savedDarkMode ? JSON.parse(savedDarkMode) : false;
+
+    this.isDarkMode = this.darkModeService.getCurrentMode() == "darkMode"
 
     this.createForm();
     this.contactId = this.route.snapshot.paramMap.get('id');
@@ -58,13 +62,14 @@ export class ContactDetailsComponent implements OnInit{
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
+      phone: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
       isFavorite: [false],
       imageUrl: [''],
       physicalAddress: [''],
       groupCategory: [''],
       addedDate: [{ value: '', disabled: true }],
-      lastViewedDate: [{ value: '', disabled: true }]
+      lastViewedDate: [{ value: '', disabled: true }],
+      id: ['', [Validators.required]]
     });
   }
 
@@ -77,15 +82,18 @@ export class ContactDetailsComponent implements OnInit{
       isFavorite: this.contact.isFavorite,
       imageUrl: this.contact.imageUrl,
       physicalAddress: this.contact.physicalAddress,
-      groupCategory: this.contact.groupCategory
+      groupCategory: this.contact.groupCategory,
+      id: this.contact.id
     });
   }
 
-  onSubmit(contact: Contact): void {
-    console.log("Pressed!");
+  onSubmit(): void {
     if (this.contactForm.valid) {
-      this.contactService.updateContact(contact.id, this.contactForm.value);
-      this.notificationService.showInfo('Contact details updated successfully!');
+      this.contactService.updateContact(this.contactForm.get('id')?.value, this.contactForm.value);
+      this.notificationService.showSuccess('Contact details updated successfully!');
+      setTimeout(()=>{
+        this.router.navigate(['/contact-list']);
+      }, 2000)
     } else {
       this.notificationService.showError('Please fill out all required fields correctly.');
     }
@@ -97,6 +105,10 @@ export class ContactDetailsComponent implements OnInit{
       'You wont be able to revert back!',
       () => {
        this.contactService.deleteContact(contact.id);
+       this.notificationService.showSuccess("Contact deleted successfully");
+        setTimeout(()=>{
+          this.router.navigate(['/contact-list']);
+        }, 1000)
       });
   }
 
@@ -111,6 +123,25 @@ export class ContactDetailsComponent implements OnInit{
     this.notificationService.showInfo(
       this.contact.isFavorite ? 'Contact marked as favorite.' : 'Contact unmarked as favorite.'
     );
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        // Update the contact's imageUrl with the selected image
+        this.contact.imageUrl = reader.result as string;
+      };
+
+      reader.readAsDataURL(file); // Read the file as a data URL
+    }
+  }
+
+  // This method triggers the file input click event programmatically
+  triggerFileInputClick() {
+    this.fileInput.nativeElement.click();
   }
 
   // Change group category

@@ -29,6 +29,13 @@ export class ContactsService {
     this.contacts.push({ ...contact, deleted: false }); // Ensure new contacts are not deleted
   }
 
+  importContacts(importedContacts: Contact[]): string {
+    importedContacts.forEach(contact => {
+      this.addContact(contact);
+    });
+    return `${importedContacts.length} contacts were successfully imported!`;
+  }
+
   // Update an existing contact by ID
   updateContact(id: string, updatedContact: Partial<Contact>): void {
     const contactIndex = this.contacts.findIndex((contact) => contact.id === id && !contact.deleted);

@@ -1,0 +1,90 @@
+<div class="mb-6 mt-9 w-full flex justify-center">
+  <input
+    type="file"
+    accept=".csv"
+    (change)="onFileChange($event)"
+    class="hidden"
+    id="fileInput"
+  />
+  <button
+    class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800"
+    (click)="fileInput.nativeElement.click()"
+  >
+    Upload CSV File
+  </button>
+</div>
+
+<!-- Import Instructions -->
+<div class="mt-6 text-center text-gray-700 dark:text-gray-300">
+  <p class="font-medium">How to Import Contacts:</p>
+  <ul class="list-inside list-disc">
+    <li>Click on the "Upload CSV File" button and select your CSV file.</li>
+    <li>The CSV file should follow the format shown below.</li>
+  </ul>
+
+  <div class="mt-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+    <p class="font-semibold">Sample CSV Format:</p>
+    <pre class="text-sm text-gray-700 dark:text-gray-300">
+First Name, Last Name, Email, Phone
+John, Doe, john.doe&#64;.com, 123-456-7890
+Jane, Smith, jane.smith&#64;.com, 987-654-3210
+    </pre>
+  </div>
+</div>
+
+<!-- Messages -->
+<div *ngIf="errorMessage" class="text-red-500 text-center mt-4">
+  {{ errorMessage }}
+</div>
+<div *ngIf="successMessage" class="text-green-500 text-center mt-4">
+  {{ successMessage }}
+</div>
+
+<!-- Import Section -->
+<div class="mt-6">
+  <h3 class="text-xl font-semibold text-center text-gray-800 dark:text-gray-200">Import Contacts</h3>
+  <div class="flex justify-center mt-4 space-x-4">
+    <button
+      (click)="importContacts()"
+      class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-800"
+    >
+      Import Contacts
+    </button>
+  </div>
+</div>
+
+<!-- Export Section -->
+<div class="mt-6">
+  <h3 class="text-xl font-semibold text-center text-gray-800 dark:text-gray-200">Export Contacts</h3>
+  <div class="flex justify-center mt-4 space-x-4">
+    <button
+      (click)="exportContacts()"
+      class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800"
+    >
+      Export Contacts
+    </button>
+  </div>
+</div>
+
+<!-- Display Imported Contacts -->
+<div *ngIf="contacts.length > 0" class="mt-6">
+  <h3 class="text-lg font-semibold text-center text-gray-800 dark:text-gray-200">Imported Contacts</h3>
+  <table class="min-w-full mt-4 table-auto border-collapse">
+    <thead>
+    <tr>
+      <th class="px-4 py-2 border-b text-gray-800 dark:text-gray-200">First Name</th>
+      <th class="px-4 py-2 border-b text-gray-800 dark:text-gray-200">Last Name</th>
+      <th class="px-4 py-2 border-b text-gray-800 dark:text-gray-200">Email</th>
+      <th class="px-4 py-2 border-b text-gray-800 dark:text-gray-200">Phone</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let contact of contacts">
+      <td class="px-4 py-2 border-b text-gray-700 dark:text-gray-300">{{ contact.firstName }}</td>
+      <td class="px-4 py-2 border-b text-gray-700 dark:text-gray-300">{{ contact.lastName }}</td>
+      <td class="px-4 py-2 border-b text-gray-700 dark:text-gray-300">{{ contact.email }}</td>
+      <td class="px-4 py-2 border-b text-gray-700 dark:text-gray-300">{{ contact.phone }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
